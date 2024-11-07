@@ -1,9 +1,9 @@
 pipeline {
     agent any
     environment {
-        VIRTUAL_ENV = 'jenkins_project\\venv'  // Update the path to point to your virtual environment
+        VIRTUAL_ENV = 'jenkins_project\\venv'  // Update to point to the virtual environment
         PYTHON_PATH = 'C:\\Python312\\python.exe'  // Path to your Python executable
-        PYTHONPATH = "${env.WORKSPACE}"  // Keep this for additional paths if needed
+        PYTHONPATH = "${env.WORKSPACE}"  // Path for additional modules
         PYTHONIOENCODING = 'utf-8'  // Set UTF-8 encoding for all Python output
     }
     stages {

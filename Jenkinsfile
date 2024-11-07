@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
+        PYTHONIOENCODING = 'utf-8' // Ensure UTF-8 encoding globally
     }
     stages {
         stage('Setup') {
@@ -42,7 +43,7 @@ pipeline {
         stage('Security Scan') {
             steps {
                 dir('jenkins_project') {
-                    bat 'venv\\Scripts\\activate && bandit -r . -x venv'
+                    bat 'venv\\Scripts\\activate && bandit -r . -x venv > bandit_report.txt'
                 }
             }
         }

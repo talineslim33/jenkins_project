@@ -6,46 +6,75 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                dir('jenkins_project') { // Navigate into the project directory
+                dir('jenkins_project') {
                     script {
-                        if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
-                            bat "python -m venv ${VIRTUAL_ENV}" // Create virtual environment
+                        if (!fileExists("${VIRTUAL_ENV}")) {
+                            bat 'python -m venv venv'
                         }
-                        bat "${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt"
+                        bat """
+                            venv\\Scripts\\activate
+                            && python -m pip install --upgrade pip
+                            && pip install -r requirements.txt
+                        """
                     }
                 }
             }
         }
+
         stage('Lint') {
             steps {
                 dir('jenkins_project') {
-                    script {
-                        bat "${VIRTUAL_ENV}\\Scripts\\activate && flake8 app.py"
-                    }
+                    bat 'venv\\Scripts\\activate && flake8 app.py'
                 }
             }
         }
+
+        stage('Coverage') {
+            steps {
+                dir('jenkins_project') {
+                    bat 'venv\\Scripts\\activate && coverage run -m pytest'
+                    bat 'venv\\Scripts\\activate && coverage report -m'
+                    bat 'venv\\Scripts\\activate && coverage html'
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                dir('jenkins_project') {
+                    // Using --exit-zero to allow pipeline to continue even if vulnerabilities are found
+                    bat 'venv\\Scripts\\activate && bandit -r . --quiet --exit-zero -o bandit_report.txt'
+                }
+            }
+        }
+
         stage('Test') {
             steps {
                 dir('jenkins_project') {
-                    script {
-                        bat "${VIRTUAL_ENV}\\Scripts\\activate && pytest"
-                    }
+                    bat 'venv\\Scripts\\activate && pytest'
                 }
             }
         }
+
         stage('Deploy') {
             steps {
                 dir('jenkins_project') {
-                    script {
-                        echo "Deploying application..."
-                    }
+                    echo 'Deploying application...'
+                    // Insert actual deployment steps here
                 }
             }
         }
     }
     post {
         always {
+            dir('jenkins_project') {
+                script {
+                    if (fileExists('bandit_report.txt')) {
+                        echo 'Security Scan (Bandit) Report:'
+                        bat "type bandit_report.txt"
+                    }
+                }
+            }
             cleanWs()
         }
     }

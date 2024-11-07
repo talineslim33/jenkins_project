@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
-        PYTHON_PATH = 'C:\\Python312\\python.exe'
+        PYTHON_PATH = 'C:\\Python312\\python.exe'  // Set the path to your Python executable
         PYTHONPATH = "${env.WORKSPACE}"
         PYTHONIOENCODING = 'utf-8'  // Set UTF-8 encoding for all Python output
     }
@@ -10,14 +10,18 @@ pipeline {
         stage('Setup') {
             steps {
                 script {
+                    // Create virtual environment if it doesn't exist
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
                         bat "${PYTHON_PATH} -m venv ${VIRTUAL_ENV}"
                     }
+                    // Activate the virtual environment and install requirements
                     bat """
                         ${VIRTUAL_ENV}\\Scripts\\activate
+                        && ${PYTHON_PATH} -m pip install --upgrade pip  // Upgrade pip
                         && ${PYTHON_PATH} -m pip install -r requirements.txt
                     """
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip freeze"  
+                    // List installed packages
+                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip freeze"
                 }
             }
         }
@@ -38,7 +42,8 @@ pipeline {
         stage('Code Coverage') {
             steps {
                 script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip install coverage"  // Ensure coverage is available
+                    // Ensure coverage is available
+                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip install coverage"
                     bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m coverage run -m pytest"
                     bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m coverage report"
                     bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m coverage html"

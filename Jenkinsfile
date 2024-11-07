@@ -6,37 +6,37 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                dir('jenkins_project') { // Navigate into jenkins_project subdirectory
+                dir('jenkins_project') { // Navigate into the project directory
                     script {
-                        if (!fileExists("${env.WORKSPACE}/${VIRTUAL_ENV}")) {
-                            sh "python -m venv ${VIRTUAL_ENV}"
+                        if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
+                            bat "python -m venv ${VIRTUAL_ENV}" // Create virtual environment
                         }
-                        sh "source ${VIRTUAL_ENV}/bin/activate && pip install -r requirements.txt"
+                        bat "${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt"
                     }
                 }
             }
         }
         stage('Lint') {
             steps {
-                dir('jenkins_project') { // Navigate into jenkins_project subdirectory
+                dir('jenkins_project') {
                     script {
-                        sh "source ${VIRTUAL_ENV}/bin/activate && flake8 app.py"
+                        bat "${VIRTUAL_ENV}\\Scripts\\activate && flake8 app.py"
                     }
                 }
             }
         }
         stage('Test') {
             steps {
-                dir('jenkins_project') { // Navigate into jenkins_project subdirectory
+                dir('jenkins_project') {
                     script {
-                        sh "source ${VIRTUAL_ENV}/bin/activate && pytest"
+                        bat "${VIRTUAL_ENV}\\Scripts\\activate && pytest"
                     }
                 }
             }
         }
         stage('Deploy') {
             steps {
-                dir('jenkins_project') { // Navigate into jenkins_project subdirectory if necessary
+                dir('jenkins_project') {
                     script {
                         echo "Deploying application..."
                     }

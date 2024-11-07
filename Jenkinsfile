@@ -6,32 +6,40 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                script {
-                    if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
-                        bat "python -m venv ${VIRTUAL_ENV}"
+                dir('jenkins_project') { // Navigate into jenkins_project subdirectory
+                    script {
+                        if (!fileExists("${env.WORKSPACE}/${VIRTUAL_ENV}")) {
+                            sh "python -m venv ${VIRTUAL_ENV}"
+                        }
+                        sh "source ${VIRTUAL_ENV}/bin/activate && pip install -r requirements.txt"
                     }
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt"
                 }
             }
         }
         stage('Lint') {
             steps {
-                script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && flake8 app.py"
+                dir('jenkins_project') { // Navigate into jenkins_project subdirectory
+                    script {
+                        sh "source ${VIRTUAL_ENV}/bin/activate && flake8 app.py"
+                    }
                 }
             }
         }
         stage('Test') {
             steps {
-                script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && pytest"
+                dir('jenkins_project') { // Navigate into jenkins_project subdirectory
+                    script {
+                        sh "source ${VIRTUAL_ENV}/bin/activate && pytest"
+                    }
                 }
             }
         }
         stage('Deploy') {
             steps {
-                script {
-                    echo "Deploying application..."
+                dir('jenkins_project') { // Navigate into jenkins_project subdirectory if necessary
+                    script {
+                        echo "Deploying application..."
+                    }
                 }
             }
         }

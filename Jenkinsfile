@@ -14,28 +14,27 @@ pipeline {
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
                         bat "${PYTHON_PATH} -m venv ${VIRTUAL_ENV}"
                     }
-                    // Activate the virtual environment and install requirements
-                    bat """
-                        call ${VIRTUAL_ENV}\\Scripts\\activate.bat
-                        && ${PYTHON_PATH} -m pip install --upgrade pip --user  // Upgrade pip with user option
-                        && ${PYTHON_PATH} -m pip install -r requirements.txt --user
-                    """
+                    // Activate the virtual environment
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat"
+                    // Upgrade pip and install requirements
+                    bat "${PYTHON_PATH} -m pip install --upgrade pip" 
+                    bat "${PYTHON_PATH} -m pip install -r ${env.WORKSPACE}\\requirements.txt"
                     // List installed packages
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pip freeze"
+                    bat "${PYTHON_PATH} -m pip freeze"
                 }
             }
         }
         stage('Lint') {
             steps {
                 script {
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m flake8 app.py"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && flake8 app.py"
                 }
             }
         }
         stage('Test') {
             steps {
                 script {
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pytest"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && pytest"
                 }
             }
         }
@@ -43,10 +42,10 @@ pipeline {
             steps {
                 script {
                     // Ensure coverage is available
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pip install coverage --user"
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m coverage run -m pytest"
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m coverage report"
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m coverage html"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && pip install coverage"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && coverage run -m pytest"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && coverage report"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && coverage html"
                 }
             }
         }
@@ -54,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Adding --exit-zero to Bandit command to avoid pipeline failure
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m bandit -r . --quiet --exit-zero 1>bandit_report.txt 2>&1"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate.bat && bandit -r . --quiet --exit-zero 1>bandit_report.txt 2>&1"
                 }
             }
         }

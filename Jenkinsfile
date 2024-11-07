@@ -2,7 +2,6 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
-        PYTHONIOENCODING = 'utf-8' // Ensure UTF-8 encoding globally
     }
     stages {
         stage('Setup') {
@@ -43,7 +42,7 @@ pipeline {
         stage('Security Scan') {
             steps {
                 dir('jenkins_project') {
-                    bat 'venv\\Scripts\\activate && bandit -r . -x venv > bandit_report.txt'
+                    bat 'venv\\Scripts\\activate && bandit -r app -x venv'
                 }
             }
         }
@@ -69,14 +68,8 @@ pipeline {
     post {
         always {
             dir('jenkins_project') {
-                script {
-                    if (fileExists('bandit_report.txt')) {
-                        echo 'Security Scan (Bandit) Report:'
-                        bat "type bandit_report.txt"
-                    }
-                }
+                cleanWs()
             }
-            cleanWs()
         }
     }
 }

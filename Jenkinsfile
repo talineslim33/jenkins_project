@@ -1,9 +1,9 @@
 pipeline {
     agent any
     environment {
-        VIRTUAL_ENV = 'venv'
+        VIRTUAL_ENV = 'jenkins_project\\venv'  // Update the path to point to your virtual environment
         PYTHON_PATH = 'C:\\Python312\\python.exe'  // Path to your Python executable
-        PYTHONPATH = "${env.WORKSPACE}"
+        PYTHONPATH = "${env.WORKSPACE}"  // Keep this for additional paths if needed
         PYTHONIOENCODING = 'utf-8'  // Set UTF-8 encoding for all Python output
     }
     stages {
@@ -12,30 +12,30 @@ pipeline {
                 script {
                     // Create virtual environment if it doesn't exist
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
-                        bat "${PYTHON_PATH} -m venv ${VIRTUAL_ENV}"
+                        bat "${PYTHON_PATH} -m venv ${env.WORKSPACE}\\${VIRTUAL_ENV}"
                     }
                     // Activate the virtual environment and install requirements
                     bat """
-                        ${VIRTUAL_ENV}\\Scripts\\activate
+                        call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat
                         && ${PYTHON_PATH} -m pip install --upgrade pip  // Upgrade pip
-                        && ${PYTHON_PATH} -m pip install -r requirements.txt
+                        && ${PYTHON_PATH} -m pip install -r ${env.WORKSPACE}\\jenkins_project\\requirements.txt
                     """
                     // List installed packages
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip freeze"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pip freeze"
                 }
             }
         }
         stage('Lint') {
             steps {
                 script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m flake8 app.py"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m flake8 ${env.WORKSPACE}\\jenkins_project\\app.py"
                 }
             }
         }
         stage('Test') {
             steps {
                 script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pytest"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pytest ${env.WORKSPACE}\\jenkins_project\\tests"
                 }
             }
         }
@@ -43,10 +43,10 @@ pipeline {
             steps {
                 script {
                     // Ensure coverage is available
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip install coverage"
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m coverage run -m pytest"
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m coverage report"
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m coverage html"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pip install coverage"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m coverage run -m pytest"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m coverage report"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m coverage html"
                 }
             }
         }
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     // Adding --exit-zero to Bandit command to avoid pipeline failure
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m bandit -r . --quiet --exit-zero 1>bandit_report.txt 2>&1"
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m bandit -r . --quiet --exit-zero 1>bandit_report.txt 2>&1"
                 }
             }
         }

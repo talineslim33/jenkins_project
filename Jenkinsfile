@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
-        PYTHON_PATH = 'C:\\Python312\\python.exe'  // Set the path to your Python executable
+        PYTHON_PATH = 'C:\\Python312\\python.exe'  // Path to your Python executable
         PYTHONPATH = "${env.WORKSPACE}"
         PYTHONIOENCODING = 'utf-8'  // Set UTF-8 encoding for all Python output
     }

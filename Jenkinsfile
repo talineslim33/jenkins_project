@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
+        PYTHON_PATH = 'C:\\Python312\\python.exe'
         PYTHONPATH = "${env.WORKSPACE}"
         PYTHONIOENCODING = 'utf-8'  // Set UTF-8 encoding for all Python output
     }
@@ -16,7 +17,7 @@ pipeline {
                         ${VIRTUAL_ENV}\\Scripts\\activate
                         && ${PYTHON_PATH} -m pip install -r requirements.txt
                     """
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip freeze"  // List installed packages
+                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m pip freeze"  
                 }
             }
         }

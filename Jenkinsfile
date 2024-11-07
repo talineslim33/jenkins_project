@@ -42,8 +42,7 @@ pipeline {
         stage('Security Scan') {
             steps {
                 dir('jenkins_project') {
-                    // Using --exit-zero to allow pipeline to continue even if vulnerabilities are found
-                    bat 'venv\\Scripts\\activate && bandit -r . --quiet --exit-zero -o bandit_report.txt'
+                    bat 'venv\\Scripts\\activate && bandit -r . -x venv'
                 }
             }
         }
@@ -65,6 +64,7 @@ pipeline {
             }
         }
     }
+    
     post {
         always {
             dir('jenkins_project') {

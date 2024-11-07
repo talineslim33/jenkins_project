@@ -42,7 +42,7 @@ pipeline {
         stage('Security Scan') {
             steps {
                 dir('jenkins_project') {
-                    bat 'venv\\Scripts\\activate && bandit -r app -x venv'
+                    bat 'venv\\Scripts\\activate && bandit -r . -x venv'
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
         stage('Test') {
             steps {
                 dir('jenkins_project') {
-                    bat 'venv\\Scripts\\activate && pytest'
+                    bat 'venv\\Scripts\\activate && pytest tests/test_app.py'
                 }
             }
         }

@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        VIRTUAL_ENV = 'jenkins_project\\venv'  // Update to point to the virtual environment
+        VIRTUAL_ENV = 'jenkins_project\\venv'  // Ensure it points to the correct path
         PYTHON_PATH = 'C:\\Python312\\python.exe'  // Path to your Python executable
         PYTHONPATH = "${env.WORKSPACE}"  // Path for additional modules
         PYTHONIOENCODING = 'utf-8'  // Set UTF-8 encoding for all Python output
@@ -15,11 +15,9 @@ pipeline {
                         bat "${PYTHON_PATH} -m venv ${env.WORKSPACE}\\${VIRTUAL_ENV}"
                     }
                     // Activate the virtual environment and install requirements
-                    bat """
-                        call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat
-                        && ${PYTHON_PATH} -m pip install --upgrade pip  // Upgrade pip
-                        && ${PYTHON_PATH} -m pip install -r ${env.WORKSPACE}\\jenkins_project\\requirements.txt
-                    """
+                    bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat"
+                    bat "${PYTHON_PATH} -m pip install --upgrade pip"  // Upgrade pip
+                    bat "${PYTHON_PATH} -m pip install -r ${env.WORKSPACE}\\jenkins_project\\requirements.txt"  // Install requirements
                     // List installed packages
                     bat "call ${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate.bat && ${PYTHON_PATH} -m pip freeze"
                 }
